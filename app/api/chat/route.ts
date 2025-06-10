@@ -1,14 +1,14 @@
 import { google } from "@ai-sdk/google";
-import { streamText, convertToCoreMessages } from "ai";
+import { streamText, convertToCoreMessages, type Message } from "ai";
 import { sqlQueryTool } from "@/lib/tools";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: Message[] } = await req.json();
 
   // Filter out messages with unsupported roles for Gemini
-  const filteredMessages = messages.filter((message: any) => {
+  const filteredMessages = messages.filter((message: Message) => {
     // Keep only user and assistant messages, filter out tool and other roles
     return message.role === 'user' || message.role === 'assistant';
   });
