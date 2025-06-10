@@ -21,6 +21,29 @@ async function handleRequest(req: NextRequest, method: string) {
       ? `?${searchParams.toString()}`
       : "";
 
+    // Handle chat requests specifically for our custom backend
+    if (path === 'chat' && method === 'POST') {
+      const body = await req.json();
+      
+      const res = await fetch(`${process.env["LANGGRAPH_API_URL"]}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      return new NextResponse(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: {
+          ...res.headers,
+          ...getCorsHeaders(),
+        },
+      });
+    }
+
+    // Default handler for other LangGraph API calls
     const options: RequestInit = {
       method,
       headers: {

@@ -1,9 +1,5 @@
-import { MyAssistant } from "@/components/MyAssistant";
+import { AuthWrapper } from "@/components/AuthWrapper";
 
 export default function Home() {
-  return (
-    <main className="h-dvh">
-      <MyAssistant />
-    </main>
-  );
+  return <AuthWrapper />;
 }

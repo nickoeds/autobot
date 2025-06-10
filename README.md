@@ -1,27 +1,147 @@
-This is the [assistant-ui](https://github.com/Yonom/assistant-ui) starter project for langgraph.
+# Pure Assistant-UI Chat Application
+
+This is a pure frontend chat application built with [assistant-ui](https://www.assistant-ui.com/) and Next.js. It demonstrates how to create a beautiful chat interface with tool calling capabilities without requiring a separate backend service.
+
+## Features
+
+- 🤖 **AI Chat Interface** - Beautiful, responsive chat UI powered by assistant-ui
+- 🔧 **Built-in Tools** - Calculator, weather info, web search, and random facts
+- ⚡ **Real-time Streaming** - Streaming responses from OpenAI
+- 🎨 **Modern UI** - Built with Tailwind CSS and shadcn/ui components
+- 📱 **Responsive Design** - Works perfectly on desktop and mobile
+- 🔍 **Tool Visualization** - Clear display of tool executions and results
 
 ## Getting Started
 
-First, add your langgraph API url and assistant id to `.env.local` file:
+### Prerequisites
+
+- Node.js 18+ 
+- OpenAI API key
+
+### Installation
+
+1. **Clone and install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Set up your OpenAI API key:**
+   
+   Copy `.env.example` to `.env.local` and add your OpenAI API key:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local`:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
+
+## Available Tools
+
+The assistant has access to several built-in tools:
+
+### 🧮 Calculator
+Perform basic arithmetic operations (add, subtract, multiply, divide)
+
+**Example:** "Calculate 25 * 4"
+
+### 🌤️ Weather 
+Get current weather information for any city (mock data)
+
+**Example:** "What's the weather in Tokyo?"
+
+### 🔍 Web Search
+Search for information on the web (mock results)
+
+**Example:** "Search for information about React"
+
+### 🎲 Random Facts
+Get interesting facts from various categories (science, history, nature, technology)
+
+**Example:** "Tell me a random science fact"
+
+## Project Structure
 
 ```
-LANGCHAIN_API_KEY=your_langchain_api_key
-LANGGRAPH_API_URL=your_langgraph_api_url
-NEXT_PUBLIC_LANGGRAPH_ASSISTANT_ID=your_assistant_id_or_graph_id 
+frontend/
+├── app/
+│   ├── api/chat/route.ts        # Chat API endpoint
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Home page
+├── components/
+│   ├── assistant-ui/
+│   │   ├── thread.tsx           # Main chat thread component
+│   │   ├── tool-fallback.tsx    # Tool execution UI
+│   │   └── markdown-text.tsx    # Markdown rendering
+│   ├── ui/                      # shadcn/ui components
+│   └── MyAssistant.tsx          # Main assistant component
+├── lib/
+│   ├── tools.ts                 # Tool definitions
+│   └── utils.ts                 # Utility functions
+└── .env.local                   # Environment variables
 ```
 
-Then, run the development server:
+## Customization
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Adding New Tools
+
+1. **Define your tool** in `lib/tools.ts`:
+   ```typescript
+   export const myCustomTool = tool({
+     description: "Description of what the tool does",
+     parameters: z.object({
+       param1: z.string().describe("Parameter description"),
+     }),
+     execute: async ({ param1 }) => {
+       // Your tool logic here
+       return { result: "Tool output" };
+     },
+   });
+   ```
+
+2. **Add it to the API route** in `app/api/chat/route.ts`:
+   ```typescript
+   tools: {
+     // ... existing tools
+     myCustom: myCustomTool,
+   },
+   ```
+
+### Styling the UI
+
+The UI uses Tailwind CSS and can be customized by modifying the components in `components/assistant-ui/`. The design system follows shadcn/ui patterns.
+
+### Changing the AI Model
+
+Update the model in `app/api/chat/route.ts`:
+```typescript
+model: openai("gpt-4"), // or any other OpenAI model
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This application can be deployed to any platform that supports Next.js:
+
+- **Vercel**: `npx vercel deploy`
+- **Netlify**: Connect your Git repository
+- **Railway**: `railway login && railway deploy`
+
+Don't forget to set your `OPENAI_API_KEY` environment variable in your deployment platform.
+
+## Learn More
+
+- [assistant-ui Documentation](https://www.assistant-ui.com/docs)
+- [AI SDK Documentation](https://sdk.vercel.ai/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

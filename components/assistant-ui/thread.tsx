@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -75,38 +76,38 @@ const ThreadWelcome: FC = () => {
         <div className="flex w-full flex-grow flex-col items-center justify-center">
           <p className="mt-4 font-medium">How can I help you today?</p>
         </div>
-        <ThreadWelcomeSuggestions />
+        {/* <ThreadWelcomeSuggestions /> */}
       </div>
     </ThreadPrimitive.Empty>
   );
 };
 
-const ThreadWelcomeSuggestions: FC = () => {
-  return (
-    <div className="mt-3 flex w-full items-stretch justify-center gap-4">
-      <ThreadPrimitive.Suggestion
-        className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="What is the weather in Tokyo?"
-        method="replace"
-        autoSend
-      >
-        <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          What is the weather in Tokyo?
-        </span>
-      </ThreadPrimitive.Suggestion>
-      <ThreadPrimitive.Suggestion
-        className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
-        prompt="What is assistant-ui?"
-        method="replace"
-        autoSend
-      >
-        <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
-          What is assistant-ui?
-        </span>
-      </ThreadPrimitive.Suggestion>
-    </div>
-  );
-};
+// const ThreadWelcomeSuggestions: FC = () => {
+//   return (
+//     <div className="mt-3 flex w-full items-stretch justify-center gap-4">
+//       <ThreadPrimitive.Suggestion
+//         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+//         prompt="Calculate 25 * 4 and then tell me a random science fact"
+//         method="replace"
+//         autoSend
+//       >
+//         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
+//           Calculate 25 * 4 and tell me a science fact
+//         </span>
+//       </ThreadPrimitive.Suggestion>
+//       <ThreadPrimitive.Suggestion
+//         className="hover:bg-muted/80 flex max-w-sm grow basis-0 flex-col items-center justify-center rounded-lg border p-3 transition-colors ease-in"
+//         prompt="What's the weather in Tokyo and search for information about assistant-ui"
+//         method="replace"
+//         autoSend
+//       >
+//         <span className="line-clamp-2 text-ellipsis text-sm font-semibold">
+//           Weather in Tokyo + search assistant-ui
+//         </span>
+//       </ThreadPrimitive.Suggestion>
+//     </div>
+//   );
+// };
 
 const Composer: FC = () => {
   return (
@@ -202,7 +203,14 @@ const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="grid grid-cols-[auto_auto_1fr] grid-rows-[auto_1fr] relative w-full max-w-[var(--thread-max-width)] py-4">
       <div className="text-foreground max-w-[calc(var(--thread-max-width)*0.8)] break-words leading-7 col-span-2 col-start-2 row-start-1 my-1.5">
-        <MessagePrimitive.Content components={{ Text: MarkdownText }} />
+        <MessagePrimitive.Content 
+          components={{ 
+            Text: MarkdownText,
+            tools: {
+              Fallback: ToolFallback
+            }
+          }} 
+        />
       </div>
 
       <AssistantActionBar />
