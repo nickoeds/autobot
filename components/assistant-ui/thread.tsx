@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
+import { SqlQueryFallback } from "@/components/assistant-ui/sql-query-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -207,7 +208,10 @@ const AssistantMessage: FC = () => {
           components={{ 
             Text: MarkdownText,
             tools: {
-              Fallback: ToolFallback
+              Fallback: ToolFallback,
+              by_name: {
+                sqlQuery: SqlQueryFallback
+              }
             }
           }} 
         />
