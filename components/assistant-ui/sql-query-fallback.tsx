@@ -2,8 +2,6 @@ import { ToolCallContentPartComponent } from "@assistant-ui/react";
 import { DatabaseIcon } from "lucide-react";
 
 export const SqlQueryFallback: ToolCallContentPartComponent = ({
-  toolName,
-  argsText,
   result,
 }) => {
   // Show loading state if no result yet
@@ -63,9 +61,9 @@ export const SqlQueryFallback: ToolCallContentPartComponent = ({
                 </tr>
               </thead>
               <tbody>
-                {results.slice(0, 10).map((row: any, index: number) => (
+                {results.slice(0, 10).map((row: Record<string, unknown>, index: number) => (
                   <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    {Object.values(row).map((value: any, cellIndex: number) => (
+                    {Object.values(row).map((value: unknown, cellIndex: number) => (
                       <td key={cellIndex} className="px-3 py-2 text-gray-900">
                         {value === null ? (
                           <span className="text-gray-400 italic">null</span>

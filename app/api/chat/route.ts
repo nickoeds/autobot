@@ -1,5 +1,5 @@
 import { anthropic } from "@ai-sdk/anthropic";
-import { streamText, convertToCoreMessages, type Message } from "ai";
+import { streamText, type Message } from "ai";
 import { sqlQueryTool } from "@/lib/tools";
 
 export const maxDuration = 30;
