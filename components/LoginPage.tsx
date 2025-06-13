@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 interface LoginPageProps {
-  onLogin: (isAuthenticated: boolean) => void;
+  onLogin: (email: string, password: string) => Promise<void>;
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -17,14 +17,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setIsLoading(true);
     setError("");
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    if (username === "admin" && password === "admin") {
-      onLogin(true);
-    } else {
-      setError("Invalid username or password");
-      onLogin(false);
+    try {
+      await onLogin(username, password);
+    } catch (error: any) {
+      setError(error.message || "Invalid credentials");
     }
     
     setIsLoading(false);
@@ -41,15 +37,15 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              Username
+              Email
             </label>
             <input
               id="username"
-              type="text"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter username"
+              placeholder="Enter email"
               required
             />
           </div>
@@ -92,10 +88,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         </form>
 
         <div className="mt-6 text-center">
-          <div className="text-sm text-gray-500 mb-2">Demo Credentials:</div>
+          <div className="text-sm text-gray-500 mb-2">Admin Access:</div>
           <div className="text-xs text-gray-400 bg-gray-50 p-2 rounded">
-            Username: <span className="font-mono">admin</span><br />
-            Password: <span className="font-mono">admin</span>
+            Use your admin credentials to access the system.<br />
+            Contact your administrator if you need access.
           </div>
         </div>
       </div>

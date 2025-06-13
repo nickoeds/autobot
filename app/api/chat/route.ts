@@ -1,91 +1,15 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, type Message } from "ai";
 import { sqlQueryTool, trackDeliveryTool } from "@/lib/tools";
+import { getSystemSetting } from "@/lib/db";
 
 export const maxDuration = 180;
 
 export async function POST(req: Request) {
   const { messages }: { messages: Message[] } = await req.json();
-  const anthropic = createAnthropic({
-    fetch: async (url, options) => {
-      const maxRetries = 3;
-      const maxWaitTime = 60; // Maximum seconds to wait per retry
-      
-      for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`Fetching (attempt ${attempt + 1}/${maxRetries + 1}):`, url);
-          
-          const response = await fetch(url, options);
-          
-          // Check if we hit a rate limit
-          if (response.status === 429) {
-            const retryAfter = response.headers.get('retry-after');
-            const waitTime = retryAfter ? parseInt(retryAfter, 10) : Math.pow(2, attempt); // Exponential backoff fallback
-            
-            // Log rate limit information
-            console.log('Rate limit hit:', {
-              attempt: attempt + 1,
-              retryAfter: retryAfter,
-              waitTime: waitTime,
-              requestsRemaining: response.headers.get('anthropic-ratelimit-requests-remaining'),
-              tokensRemaining: response.headers.get('anthropic-ratelimit-tokens-remaining'),
-              inputTokensRemaining: response.headers.get('anthropic-ratelimit-input-tokens-remaining'),
-              outputTokensRemaining: response.headers.get('anthropic-ratelimit-output-tokens-remaining')
-            });
-            
-            // Don't retry if this is the last attempt
-            if (attempt === maxRetries) {
-              console.log('Max retries reached, returning rate limit response');
-              return response;
-            }
-            
-            // Cap the wait time for safety
-            const actualWaitTime = Math.min(waitTime, maxWaitTime);
-            console.log(`Waiting ${actualWaitTime} seconds before retry...`);
-            
-            // Wait before retrying
-            await new Promise(resolve => setTimeout(resolve, actualWaitTime * 1000));
-            continue;
-          }
-          
-          // Log successful request with rate limit info
-          console.log('Request successful:', {
-            status: response.status,
-            requestsRemaining: response.headers.get('anthropic-ratelimit-requests-remaining'),
-            tokensRemaining: response.headers.get('anthropic-ratelimit-tokens-remaining'),
-            inputTokensRemaining: response.headers.get('anthropic-ratelimit-input-tokens-remaining'),
-            outputTokensRemaining: response.headers.get('anthropic-ratelimit-output-tokens-remaining')
-          });
-          
-          return response;
-          
-        } catch (error) {
-          console.error(`Request failed (attempt ${attempt + 1}):`, error);
-          
-          // Don't retry on the last attempt
-          if (attempt === maxRetries) {
-            throw error;
-          }
-          
-          // Wait before retrying on network errors
-          const waitTime = Math.pow(2, attempt);
-          console.log(`Waiting ${waitTime} seconds before retry due to error...`);
-          await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
-        }
-      }
-      
-      // This should never be reached, but just in case
-      throw new Error('Max retries exceeded');
-    },
-  });
-  const result = streamText({
-    model: anthropic.languageModel("claude-sonnet-4-20250514"),
-    messages: messages,
-    tools: {
-      sqlQuery: sqlQueryTool,
-      trackDelivery: trackDeliveryTool,
-    },
-    system: `You are a helpful AI assistant with access to a MySQL database tool for querying auto parts data and a delivery tracking tool.
+  
+  // Get system prompt from database
+  let systemPrompt = `You are a helpful AI assistant with access to a MySQL database tool for querying auto parts data and a delivery tracking tool.
 
 **IMPORTANT: Currency Display**
 This business is based in the UK. Always display all monetary values in British Pounds (GBP) with the £ symbol. Format prices as £X.XX (e.g., £25.50, £1,234.67). This applies to:
@@ -183,7 +107,98 @@ This business is based in the UK. Always display all monetary values in British 
 - Format query results in a user-friendly way with all monetary values in British Pounds (£)
 - Ask clarifying questions if the user's request is unclear
 
-Feel free to help users explore the auto parts database and find the information they need!`,
+Feel free to help users explore the auto parts database and find the information they need!`;
+
+  try {
+    const systemSetting = await getSystemSetting('system_prompt');
+    if (systemSetting?.value) {
+      systemPrompt = systemSetting.value;
+    }
+  } catch (error) {
+    console.error('Error fetching system prompt:', error);
+    // Fall back to default prompt
+  }
+  
+  const anthropic = createAnthropic({
+    fetch: async (url, options) => {
+      const maxRetries = 3;
+      const maxWaitTime = 60; // Maximum seconds to wait per retry
+      
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Fetching (attempt ${attempt + 1}/${maxRetries + 1}):`, url);
+          
+          const response = await fetch(url, options);
+          
+          // Check if we hit a rate limit
+          if (response.status === 429) {
+            const retryAfter = response.headers.get('retry-after');
+            const waitTime = retryAfter ? parseInt(retryAfter, 10) : Math.pow(2, attempt); // Exponential backoff fallback
+            
+            // Log rate limit information
+            console.log('Rate limit hit:', {
+              attempt: attempt + 1,
+              retryAfter: retryAfter,
+              waitTime: waitTime,
+              requestsRemaining: response.headers.get('anthropic-ratelimit-requests-remaining'),
+              tokensRemaining: response.headers.get('anthropic-ratelimit-tokens-remaining'),
+              inputTokensRemaining: response.headers.get('anthropic-ratelimit-input-tokens-remaining'),
+              outputTokensRemaining: response.headers.get('anthropic-ratelimit-output-tokens-remaining')
+            });
+            
+            // Don't retry if this is the last attempt
+            if (attempt === maxRetries) {
+              console.log('Max retries reached, returning rate limit response');
+              return response;
+            }
+            
+            // Cap the wait time for safety
+            const actualWaitTime = Math.min(waitTime, maxWaitTime);
+            console.log(`Waiting ${actualWaitTime} seconds before retry...`);
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, actualWaitTime * 1000));
+            continue;
+          }
+          
+          // Log successful request with rate limit info
+          console.log('Request successful:', {
+            status: response.status,
+            requestsRemaining: response.headers.get('anthropic-ratelimit-requests-remaining'),
+            tokensRemaining: response.headers.get('anthropic-ratelimit-tokens-remaining'),
+            inputTokensRemaining: response.headers.get('anthropic-ratelimit-input-tokens-remaining'),
+            outputTokensRemaining: response.headers.get('anthropic-ratelimit-output-tokens-remaining')
+          });
+          
+          return response;
+          
+        } catch (error) {
+          console.error(`Request failed (attempt ${attempt + 1}):`, error);
+          
+          // Don't retry on the last attempt
+          if (attempt === maxRetries) {
+            throw error;
+          }
+          
+          // Wait before retrying on network errors
+          const waitTime = Math.pow(2, attempt);
+          console.log(`Waiting ${waitTime} seconds before retry due to error...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime * 1000));
+        }
+      }
+      
+      // This should never be reached, but just in case
+      throw new Error('Max retries exceeded');
+    },
+  });
+  const result = streamText({
+    model: anthropic.languageModel("claude-sonnet-4-20250514"),
+    messages: messages,
+    tools: {
+      sqlQuery: sqlQueryTool,
+      trackDelivery: trackDeliveryTool,
+    },
+    system: systemPrompt,
   });
 
   return result.toDataStreamResponse();
