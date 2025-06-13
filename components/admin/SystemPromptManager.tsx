@@ -67,7 +67,7 @@ export function SystemPromptManager({ userId }: SystemPromptManagerProps) {
       <div>
         <h2 className="text-xl font-semibold mb-2">System Prompt</h2>
         <p className="text-gray-600 text-sm">
-          Configure the AI assistant's behavior and instructions. This prompt will be used for all conversations.
+          Configure the AI assistant&apos;s behavior and instructions. This prompt will be used for all conversations.
         </p>
       </div>
 

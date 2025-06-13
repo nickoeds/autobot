@@ -19,8 +19,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
     try {
       await onLogin(username, password);
-    } catch (error: any) {
-      setError(error.message || "Invalid credentials");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "Invalid credentials");
     }
     
     setIsLoading(false);
