@@ -2,7 +2,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, type Message } from "ai";
 import { sqlQueryTool, trackDeliveryTool } from "@/lib/tools";
 
-export const maxDuration = 30;
+export const maxDuration = 180;
 
 export async function POST(req: Request) {
   const { messages }: { messages: Message[] } = await req.json();
