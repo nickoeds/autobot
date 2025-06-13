@@ -23,6 +23,7 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { SqlQueryFallback } from "@/components/assistant-ui/sql-query-fallback";
+import { TrackDeliveryFallback } from "./track-delivery-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -210,7 +211,8 @@ const AssistantMessage: FC = () => {
             tools: {
               Fallback: ToolFallback,
               by_name: {
-                sqlQuery: SqlQueryFallback
+                sqlQuery: SqlQueryFallback,
+                trackDelivery: TrackDeliveryFallback
               }
             }
           }} 
