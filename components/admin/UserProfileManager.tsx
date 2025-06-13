@@ -93,13 +93,13 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
     <div className="space-y-8">
       <div>
         <h2 className="text-xl font-semibold mb-2">Profile Settings</h2>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600 text-sm leading-relaxed">
           Manage your admin account settings and credentials.
         </p>
       </div>
 
       {message && (
-        <div className={`p-3 text-sm ${
+        <div className={`p-3 text-sm rounded-md ${
           message.includes('Error') || message.includes('incorrect') || message.includes('do not match') || message.includes('cannot be empty') || message.includes('must be at least')
             ? 'bg-red-50 text-red-700 border border-red-200' 
             : 'bg-green-50 text-green-700 border border-green-200'
@@ -109,7 +109,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
       )}
 
       {/* Username Section */}
-      <div className="border-b border-gray-200 pb-6">
+      <div className="border-b border-gray-200 pb-6 sm:pb-8">
         <h3 className="text-lg font-medium mb-4">Username</h3>
         <div className="space-y-4">
           <div>
@@ -121,7 +121,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full sm:max-w-md px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-base sm:text-sm"
               placeholder="Enter username"
             />
           </div>
@@ -129,7 +129,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
             <button
               onClick={handleUpdateUsername}
               disabled={loading || username === user.username}
-              className="px-4 py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-md touch-manipulation"
             >
               {loading ? 'Updating...' : 'Update Username'}
             </button>
@@ -140,7 +140,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
       {/* Password Section */}
       <div>
         <h3 className="text-lg font-medium mb-4">Change Password</h3>
-        <div className="space-y-4">
+        <div className="space-y-4 sm:space-y-6">
           <div>
             <label htmlFor="current-password" className="block text-sm font-medium mb-2">
               Current Password
@@ -150,7 +150,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full sm:max-w-md px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-base sm:text-sm"
               placeholder="Enter current password"
             />
           </div>
@@ -163,7 +163,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full sm:max-w-md px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-base sm:text-sm"
               placeholder="Enter new password"
             />
           </div>
@@ -176,7 +176,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="w-full sm:max-w-md px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-base sm:text-sm"
               placeholder="Confirm new password"
             />
           </div>
@@ -184,7 +184,7 @@ export function UserProfileManager({ user, onProfileUpdate }: UserProfileManager
             <button
               onClick={handleUpdatePassword}
               disabled={loading || !currentPassword || !newPassword || !confirmPassword}
-              className="px-4 py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-md touch-manipulation"
             >
               {loading ? 'Updating...' : 'Update Password'}
             </button>

@@ -66,7 +66,7 @@ export function SystemPromptManager({ userId }: SystemPromptManagerProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold mb-2">System Prompt</h2>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600 text-sm leading-relaxed">
           Configure the AI assistant&apos;s behavior and instructions. This prompt will be used for all conversations.
         </p>
       </div>
@@ -80,14 +80,17 @@ export function SystemPromptManager({ userId }: SystemPromptManagerProps) {
             id="system-prompt"
             value={systemPrompt}
             onChange={(e) => setSystemPrompt(e.target.value)}
-            rows={20}
-            className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none font-mono text-sm"
+            rows={15}
+            className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-y font-mono text-sm sm:text-xs leading-relaxed"
             placeholder="Enter the system prompt for the AI assistant..."
           />
+          <div className="text-xs text-gray-500 mt-1">
+            Characters: {systemPrompt.length}
+          </div>
         </div>
 
         {message && (
-          <div className={`p-3 text-sm ${
+          <div className={`p-3 text-sm rounded-md ${
             message.includes('Error') 
               ? 'bg-red-50 text-red-700 border border-red-200' 
               : 'bg-green-50 text-green-700 border border-green-200'
@@ -96,11 +99,11 @@ export function SystemPromptManager({ userId }: SystemPromptManagerProps) {
           </div>
         )}
 
-        <div className="flex justify-end">
+        <div className="flex flex-col sm:flex-row sm:justify-end">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full sm:w-auto px-6 py-3 sm:py-2 bg-black text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded-md touch-manipulation"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

@@ -27,41 +27,30 @@ const MarkdownTextImpl = () => {
 
 export const MarkdownText = memo(MarkdownTextImpl);
 
-const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
+const CodeHeader: FC<CodeHeaderProps> = ({
+  language,
+  code,
+}) => {
+  const [copied, setCopied] = useState(false);
+
   const onCopy = () => {
-    if (!code || isCopied) return;
-    copyToClipboard(code);
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1000);
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
-      <span className="lowercase [&>span]:text-xs">{language}</span>
+    <div className="flex h-8 items-center justify-between bg-gray-100 px-4 text-xs">
+      <div className="text-gray-600">{language}</div>
       <TooltipIconButton tooltip="Copy" onClick={onCopy}>
-        {!isCopied && <CopyIcon />}
-        {isCopied && <CheckIcon />}
+        {copied ? (
+          <CheckIcon className="h-4 w-4 text-green-600" />
+        ) : (
+          <CopyIcon className="h-4 w-4" />
+        )}
       </TooltipIconButton>
     </div>
   );
-};
-
-const useCopyToClipboard = ({
-  copiedDuration = 3000,
-}: {
-  copiedDuration?: number;
-} = {}) => {
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-
-  const copyToClipboard = (value: string) => {
-    if (!value) return;
-
-    navigator.clipboard.writeText(value).then(() => {
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), copiedDuration);
-    });
-  };
-
-  return { isCopied, copyToClipboard };
 };
 
 const defaultComponents = memoizeMarkdownComponents({
@@ -153,18 +142,20 @@ const defaultComponents = memoizeMarkdownComponents({
     <hr className={cn("my-5 border-b", className)} {...props} />
   ),
   table: ({ className, ...props }) => (
-    <table
-      className={cn(
-        "my-5 w-full border-separate border-spacing-0 overflow-y-auto",
-        className
-      )}
-      {...props}
-    />
+    <div className="my-5 w-full overflow-x-auto">
+      <table
+        className={cn(
+          "w-full min-w-full border-separate border-spacing-0 text-sm",
+          className
+        )}
+        {...props}
+      />
+    </div>
   ),
   th: ({ className, ...props }) => (
     <th
       className={cn(
-        "bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right",
+        "bg-muted px-2 sm:px-4 py-2 text-left font-bold text-xs sm:text-sm whitespace-nowrap first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right",
         className
       )}
       {...props}
@@ -173,7 +164,7 @@ const defaultComponents = memoizeMarkdownComponents({
   td: ({ className, ...props }) => (
     <td
       className={cn(
-        "border-b border-l px-4 py-2 text-left last:border-r [&[align=center]]:text-center [&[align=right]]:text-right",
+        "border-b border-l px-2 sm:px-4 py-2 text-left text-xs sm:text-sm whitespace-nowrap last:border-r [&[align=center]]:text-center [&[align=right]]:text-right",
         className
       )}
       {...props}
