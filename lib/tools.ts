@@ -2,6 +2,20 @@ import { tool } from "ai";
 import { z } from "zod";
 import mysql from "mysql2/promise";
 
+// Type definitions for Detrack API response objects
+interface DeliveryItem {
+  sku: string;
+  description: string;
+  quantity: number;
+  serial_numbers: string[];
+}
+
+interface DeliveryMilestone {
+  status: string;
+  pod_at: string;
+  reason: string;
+}
+
 // SQL Database Query tool
 export const sqlQueryTool = tool({
   description: "Execute SQL queries on the ap_autopart database, specifically on the iLines table. Use this to retrieve data about auto parts. Results returned are limited to 20 rows maximum.",
@@ -118,7 +132,7 @@ export const trackDeliveryTool = tool({
         eta: job.live_eta || job.eta_time,
         recipient: job.deliver_to_collect_from,
         deliveryAddress: job.address,
-        items: job.items.map((item: any) => ({
+        items: job.items.map((item: DeliveryItem) => ({
           sku: item.sku,
           description: item.description,
           quantity: item.quantity,
@@ -135,7 +149,7 @@ export const trackDeliveryTool = tool({
             job.photo_5_file_url,
           ].filter(Boolean),
         },
-        statusHistory: job.milestones.map((milestone: any) => ({
+        statusHistory: job.milestones.map((milestone: DeliveryMilestone) => ({
           status: milestone.status,
           timestamp: milestone.pod_at,
           reason: milestone.reason,
