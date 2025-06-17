@@ -16,6 +16,32 @@ interface DeliveryMilestone {
   reason: string;
 }
 
+// Vehicle tracking interfaces
+interface VehicleData {
+  name: string;
+  lat: number;
+  lng: number;
+  address: string;
+  batt: number;
+  speed: number;
+  max_speed: number;
+  avg_speed: number;
+  tracked_at: string;
+  connection: string;
+  no_gps?: boolean;
+}
+
+interface VehicleApiEntry {
+  status: string;
+  name: string;
+  vehicle?: VehicleData;
+  errors?: Array<{ message: string }>;
+}
+
+interface VehicleApiResponse {
+  results: VehicleApiEntry[];
+}
+
 // SQL Database Query tool
 export const sqlQueryTool = tool({
   description: "Execute SQL queries on the ap_autopart database, specifically on the iLines table. Use this to retrieve data about auto parts. Results returned are limited to 20 rows maximum.",
@@ -197,12 +223,12 @@ export const trackVehicleTool = tool({
         throw new Error(`Detrack Vehicle API error: ${response.status} ${errorData.message || response.statusText}`);
       }
 
-      const result = await response.json();
+      const result: VehicleApiResponse = await response.json();
       if (!result.results) {
         throw new Error("Invalid response format from Detrack API: missing 'results' field.");
       }
 
-      const vehicleInfo = result.results.map((entry: any) => {
+      const vehicleInfo = result.results.map((entry: VehicleApiEntry) => {
         if (entry.status === "ok" && entry.vehicle && !entry.vehicle.no_gps) {
           const v = entry.vehicle;
           const mapsLink = `https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`;

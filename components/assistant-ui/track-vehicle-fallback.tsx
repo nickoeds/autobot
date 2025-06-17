@@ -1,5 +1,22 @@
 import { ToolCallContentPartComponent } from "@assistant-ui/react";
-import { CarIcon, MapPinIcon, BatteryIcon, GaugeIcon, ClockIcon, WifiIcon, ExternalLinkIcon } from "lucide-react";
+import { CarIcon, MapPinIcon, BatteryIcon, GaugeIcon, ClockIcon, ExternalLinkIcon } from "lucide-react";
+
+// Interface for tracked vehicle data
+interface TrackedVehicle {
+  success: boolean;
+  name: string;
+  lat?: number;
+  lng?: number;
+  address?: string;
+  battery?: number;
+  speed?: number;
+  max_speed?: number;
+  avg_speed?: number;
+  tracked_at?: string;
+  connection?: string;
+  googleMapsUrl?: string;
+  error?: string;
+}
 
 export const TrackVehicleFallback: ToolCallContentPartComponent = ({
   result,
@@ -56,7 +73,7 @@ export const TrackVehicleFallback: ToolCallContentPartComponent = ({
 
   return (
     <div className="space-y-4">
-      {vehicles.map((vehicle: any, index: number) => {
+      {vehicles.map((vehicle: TrackedVehicle, index: number) => {
         // Handle individual vehicle errors
         if (!vehicle.success) {
           return (
@@ -84,7 +101,7 @@ export const TrackVehicleFallback: ToolCallContentPartComponent = ({
                   {vehicle.name}
                 </span>
               </div>
-              <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getConnectionColor(vehicle.connection)}`}>
+              <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getConnectionColor(vehicle.connection || '')}`}>
                 {vehicle.connection || 'Unknown'}
               </span>
             </div>
