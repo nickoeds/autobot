@@ -169,3 +169,75 @@ export const trackDeliveryTool = tool({
     }
   },
 }); 
+
+export const trackVehicleTool = tool({
+  description:
+    "Track the GPS location and details of a delivery vehicle by name using the Detrack API. Returns real-time latitude, longitude, address, battery, speed, and a Google Maps link.",
+  parameters: z.object({
+    vehicle_names: z.array(z.string()).nonempty().describe("List of vehicle names to track, e.g., ['Anthony']"),
+  }),
+  execute: async ({ vehicle_names }) => {
+    try {
+      const apiKey = process.env.DETRACK_API_KEY;
+      if (!apiKey) {
+        throw new Error("Detrack API key is not configured.");
+      }
+
+      const response = await fetch("https://app.detrack.com/api/v1/vehicles/view.json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": apiKey,
+        },
+        body: JSON.stringify(vehicle_names),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(`Detrack Vehicle API error: ${response.status} ${errorData.message || response.statusText}`);
+      }
+
+      const result = await response.json();
+      if (!result.results) {
+        throw new Error("Invalid response format from Detrack API: missing 'results' field.");
+      }
+
+      const vehicleInfo = result.results.map((entry: any) => {
+        if (entry.status === "ok" && entry.vehicle && !entry.vehicle.no_gps) {
+          const v = entry.vehicle;
+          const mapsLink = `https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`;
+          return {
+            success: true,
+            name: v.name,
+            lat: v.lat,
+            lng: v.lng,
+            address: v.address,
+            battery: v.batt,
+            speed: v.speed,
+            max_speed: v.max_speed,
+            avg_speed: v.avg_speed,
+            tracked_at: v.tracked_at,
+            connection: v.connection,
+            googleMapsUrl: mapsLink,
+          };
+        } else {
+          return {
+            success: false,
+            name: entry.name,
+            error: entry.errors?.[0]?.message || "Vehicle not found or GPS unavailable.",
+          };
+        }
+      });
+
+      return {
+        success: true,
+        results: vehicleInfo,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  },
+});

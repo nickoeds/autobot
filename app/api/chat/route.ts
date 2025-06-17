@@ -1,6 +1,6 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, type Message } from "ai";
-import { sqlQueryTool, trackDeliveryTool } from "@/lib/tools";
+import { sqlQueryTool, trackDeliveryTool, trackVehicleTool } from "@/lib/tools";
 import { getSystemSetting } from "@/lib/db";
 
 export const maxDuration = 180;
@@ -197,6 +197,7 @@ Feel free to help users explore the auto parts database and find the information
     tools: {
       sqlQuery: sqlQueryTool,
       trackDelivery: trackDeliveryTool,
+      trackVehicleTool: trackVehicleTool
     },
     system: systemPrompt,
   });

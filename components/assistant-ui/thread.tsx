@@ -24,6 +24,7 @@ import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { SqlQueryFallback } from "@/components/assistant-ui/sql-query-fallback";
 import { TrackDeliveryFallback } from "./track-delivery-fallback";
+import { TrackVehicleFallback } from "./track-vehicle-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -212,7 +213,8 @@ const AssistantMessage: FC = () => {
               Fallback: ToolFallback,
               by_name: {
                 sqlQuery: SqlQueryFallback,
-                trackDelivery: TrackDeliveryFallback
+                trackDelivery: TrackDeliveryFallback,
+                trackVehicleTool: TrackVehicleFallback
               }
             }
           }} 
