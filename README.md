@@ -1,147 +1,170 @@
-# Pure Assistant-UI Chat Application
+# Sales Chat Assistant
 
-This is a pure frontend chat application built with [assistant-ui](https://www.assistant-ui.com/) and Next.js. It demonstrates how to create a beautiful chat interface with tool calling capabilities without requiring a separate backend service.
+A specialized AI-powered sales assistant built with [assistant-ui](https://www.assistant-ui.com/), Next.js, and Claude. This application provides intelligent customer support for auto parts sales, delivery tracking, and vehicle fleet management with real-time data integration.
 
-## Features
+## ✨ Features
 
-- 🤖 **AI Chat Interface** - Beautiful, responsive chat UI powered by assistant-ui
-- 🔧 **Built-in Tools** - Calculator, weather info, web search, and random facts
-- ⚡ **Real-time Streaming** - Streaming responses from OpenAI
-- 🎨 **Modern UI** - Built with Tailwind CSS and shadcn/ui components
-- 📱 **Responsive Design** - Works perfectly on desktop and mobile
-- 🔍 **Tool Visualization** - Clear display of tool executions and results
+- **🚗 Auto Parts Database**: Query auto parts inventory from MySQL database
+- **📦 Delivery Tracking**: Real-time delivery status via Detrack API integration
+- **🚛 Vehicle Fleet Tracking**: Live GPS tracking of delivery vehicles with Google Maps
+- **🤖 AI-Powered Chat**: Natural language interface for customer inquiries
+- **⚡ Real-time Streaming**: Live streaming responses from OpenAI
+- **🎨 Beautiful UI**: Modern design with custom tool visualizations
+- **📱 Responsive Design**: Perfect on desktop and mobile
+- **🔍 Rich Tool Display**: Visual feedback for database queries and tracking results
 
-## Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd sales_chat/frontend
+   ```
 
-- Node.js 18+ 
-- OpenAI API key
-
-### Installation
-
-1. **Clone and install dependencies:**
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-2. **Set up your OpenAI API key:**
-   
-   Copy `.env.example` to `.env.local` and add your OpenAI API key:
+3. **Set up environment variables**:
    ```bash
    cp .env.example .env.local
    ```
    
-   Edit `.env.local`:
+   Add your API keys to `.env.local`:
    ```env
    OPENAI_API_KEY=your_openai_api_key_here
+   DETRACK_API_KEY=your_detrack_api_key_here
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
    ```
 
-3. **Run the development server:**
+4. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-4. **Open your browser** and navigate to [http://localhost:3000](http://localhost:3000)
+5. **Open your browser** to [http://localhost:3000](http://localhost:3000)
 
-## Available Tools
+## 🛠️ Available Tools
 
-The assistant has access to several built-in tools:
+The sales assistant comes with specialized business tools:
 
-### 🧮 Calculator
-Perform basic arithmetic operations (add, subtract, multiply, divide)
+### 🗄️ Auto Parts Database Query
+Search and retrieve auto parts information from the MySQL database
+```
+"Find brake pads for Toyota Camry 2018"
+"Show me all oil filters in stock"
+"What's the price for part number ABC123?"
+```
 
-**Example:** "Calculate 25 * 4"
+### 📦 Delivery Tracking
+Track customer deliveries using Detrack API integration
+```
+"Track delivery order DO-12345"
+"What's the status of my delivery?"
+"Show me proof of delivery for order 67890"
+```
 
-### 🌤️ Weather 
-Get current weather information for any city (mock data)
+### 🚛 Vehicle Fleet Tracking
+Monitor delivery vehicles with real-time GPS tracking and Google Maps
+```
+"Where is driver Anthony right now?"
+"Track vehicle fleet status"
+"Show me the location of delivery truck 5"
+```
 
-**Example:** "What's the weather in Tokyo?"
+## 📡 API Integrations
 
-### 🔍 Web Search
-Search for information on the web (mock results)
+### Detrack API
+- **Delivery Tracking**: Real-time delivery status and proof of delivery
+- **Vehicle Tracking**: Live GPS coordinates and vehicle metrics
+- **Features**: Photos, signatures, delivery history, battery levels, speed monitoring
 
-**Example:** "Search for information about React"
+### Google Maps API
+- **Embedded Maps**: Vehicle location visualization
+- **External Links**: Direct Google Maps navigation
+- **Requirements**: Google Cloud Console setup with Maps Embed API
 
-### 🎲 Random Facts
-Get interesting facts from various categories (science, history, nature, technology)
-
-**Example:** "Tell me a random science fact"
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 frontend/
 ├── app/
-│   ├── api/chat/route.ts        # Chat API endpoint
+│   ├── api/chat/route.ts        # Chat API with OpenAI integration
 │   ├── layout.tsx               # Root layout
-│   └── page.tsx                 # Home page
+│   └── page.tsx                 # Main chat interface
 ├── components/
 │   ├── assistant-ui/
-│   │   ├── thread.tsx           # Main chat thread component
-│   │   ├── tool-fallback.tsx    # Tool execution UI
-│   │   └── markdown-text.tsx    # Markdown rendering
+│   │   ├── thread.tsx           # Chat interface
+│   │   ├── track-delivery-fallback.tsx    # Delivery tracking UI
+│   │   ├── track-vehicle-fallback.tsx     # Vehicle tracking UI
+│   │   └── markdown-text.tsx    # Message rendering
 │   ├── ui/                      # shadcn/ui components
-│   └── MyAssistant.tsx          # Main assistant component
+│   └── MyAssistant.tsx          # Main assistant wrapper
 ├── lib/
-│   ├── tools.ts                 # Tool definitions
+│   ├── tools.ts                 # Business tool definitions
 │   └── utils.ts                 # Utility functions
 └── .env.local                   # Environment variables
 ```
 
-## Customization
+## 🎨 Tool Visualizations
 
-### Adding New Tools
+### Delivery Tracking Display
+- **Status Indicators**: Color-coded delivery status
+- **Proof of Delivery**: Photo gallery and signature display
+- **Delivery Details**: Recipient, address, ETA information
+- **Modal Views**: Full-size image viewing
 
-1. **Define your tool** in `lib/tools.ts`:
-   ```typescript
-   export const myCustomTool = tool({
-     description: "Description of what the tool does",
-     parameters: z.object({
-       param1: z.string().describe("Parameter description"),
-     }),
-     execute: async ({ param1 }) => {
-       // Your tool logic here
-       return { result: "Tool output" };
-     },
-   });
-   ```
+### Vehicle Tracking Display
+- **Live Location**: Embedded Google Maps with vehicle position
+- **Vehicle Metrics**: Battery level, speed, connection status
+- **Fleet Overview**: Multiple vehicle tracking support
+- **Interactive Maps**: Click to open full Google Maps
 
-2. **Add it to the API route** in `app/api/chat/route.ts`:
-   ```typescript
-   tools: {
-     // ... existing tools
-     myCustom: myCustomTool,
-   },
-   ```
+### Database Query Results
+- **Structured Data**: Clean table display of auto parts
+- **Result Limiting**: Maximum 20 results for performance
+- **Field Information**: Column names and data types
+- **Error Handling**: Clear error messages for failed queries
 
-### Styling the UI
+## 🚀 Deployment
 
-The UI uses Tailwind CSS and can be customized by modifying the components in `components/assistant-ui/`. The design system follows shadcn/ui patterns.
+Deploy to any platform supporting Next.js:
 
-### Changing the AI Model
-
-Update the model in `app/api/chat/route.ts`:
-```typescript
-model: openai("gpt-4"), // or any other OpenAI model
+### Vercel (Recommended)
+```bash
+npx vercel deploy
 ```
 
-## Deployment
+### Railway
+```bash
+railway login && railway deploy
+```
 
-This application can be deployed to any platform that supports Next.js:
+## 🔐 Security Features
 
-- **Vercel**: `npx vercel deploy`
-- **Netlify**: Connect your Git repository
-- **Railway**: `railway login && railway deploy`
+- **SQL Injection Protection**: Only SELECT queries allowed
+- **API Key Security**: Environment variable protection
+- **Database Access**: Read-only database user
+- **Result Limiting**: Maximum 20 rows per query
+- **Error Sanitization**: Safe error message display
 
-Don't forget to set your `OPENAI_API_KEY` environment variable in your deployment platform.
+## 🔧 Technology Stack
 
-## Learn More
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **UI**: assistant-ui, Tailwind CSS, shadcn/ui  
+- **AI**: OpenAI API via AI SDK by Vercel
+- **Database**: MySQL with mysql2 driver
+- **APIs**: Detrack API, Google Maps Embed API
+- **Tools**: Custom tool system with Zod validation
 
+## 📚 API Documentation
+
+- [Detrack API Documentation](https://www.detrack.com/api-documentation/)
+- [Google Maps Embed API](https://developers.google.com/maps/documentation/embed)
 - [assistant-ui Documentation](https://www.assistant-ui.com/docs)
 - [AI SDK Documentation](https://sdk.vercel.ai/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
 
-## License
+## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
