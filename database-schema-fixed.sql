@@ -7,6 +7,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- Drop existing tables if they exist (to start fresh)
 DROP TABLE IF EXISTS system_settings CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS drivers CASCADE;
 
 -- Create users table
 CREATE TABLE users (
@@ -14,6 +15,15 @@ CREATE TABLE users (
     email TEXT UNIQUE NOT NULL,
     username TEXT UNIQUE NOT NULL,
     role TEXT CHECK (role IN ('admin', 'user')) DEFAULT 'user',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create drivers table
+CREATE TABLE drivers (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    name TEXT NOT NULL,
+    detrack_id TEXT UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -29,6 +39,7 @@ CREATE TABLE system_settings (
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE drivers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users table (FIXED - no recursion)
@@ -97,6 +108,10 @@ $$ LANGUAGE plpgsql;
 -- Triggers to automatically update updated_at
 DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_drivers_updated_at ON drivers;
+CREATE TRIGGER update_drivers_updated_at BEFORE UPDATE ON drivers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_system_settings_updated_at ON system_settings;

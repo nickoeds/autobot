@@ -17,6 +17,14 @@ export interface User {
   updated_at: string
 }
 
+export interface Driver {
+  id: string
+  name: string
+  detrack_id: string
+  created_at: string
+  updated_at: string
+}
+
 export interface SystemSetting {
   id: string
   key: string
@@ -237,5 +245,88 @@ export const updateSystemSetting = async (key: string, value: string, updatedBy:
   } catch (error) {
     console.error('Update system setting error:', error)
     return null
+  }
+}
+
+// Driver management functions
+export const getAllDrivers = async (): Promise<Driver[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('drivers')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Get drivers error:', error)
+      return []
+    }
+
+    return data as Driver[]
+  } catch (error) {
+    console.error('Get drivers error:', error)
+    return []
+  }
+}
+
+export const createDriver = async (name: string, detrackId: string): Promise<Driver | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('drivers')
+      .insert({
+        name,
+        detrack_id: detrackId
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Create driver error:', error)
+      return null
+    }
+
+    return data as Driver
+  } catch (error) {
+    console.error('Create driver error:', error)
+    return null
+  }
+}
+
+export const updateDriver = async (driverId: string, updates: Partial<Pick<Driver, 'name' | 'detrack_id'>>): Promise<Driver | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('drivers')
+      .update(updates)
+      .eq('id', driverId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Update driver error:', error)
+      return null
+    }
+
+    return data as Driver
+  } catch (error) {
+    console.error('Update driver error:', error)
+    return null
+  }
+}
+
+export const deleteDriver = async (driverId: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('drivers')
+      .delete()
+      .eq('id', driverId)
+
+    if (error) {
+      console.error('Delete driver error:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Delete driver error:', error)
+    return false
   }
 } 

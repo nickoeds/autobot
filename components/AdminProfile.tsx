@@ -5,12 +5,13 @@ import { type User } from '@/lib/db'
 import { SystemPromptManager } from './admin/SystemPromptManager'
 import { UserProfileManager } from './admin/UserProfileManager'
 import { UserManager } from './admin/UserManager'
+import { DriverManager } from './admin/DriverManager'
 import { useRouter } from 'next/navigation'
 
 export function AdminProfile() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'system' | 'profile' | 'users'>('system')
+  const [activeTab, setActiveTab] = useState<'system' | 'profile' | 'users' | 'drivers'>('system')
   const router = useRouter()
 
   useEffect(() => {
@@ -121,6 +122,16 @@ export function AdminProfile() {
             >
               User Management
             </button>
+            <button
+              onClick={() => setActiveTab('drivers')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap touch-manipulation ${
+                activeTab === 'drivers'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Driver Management
+            </button>
           </div>
         </nav>
 
@@ -136,6 +147,10 @@ export function AdminProfile() {
           
           {activeTab === 'users' && (
             <UserManager />
+          )}
+          
+          {activeTab === 'drivers' && (
+            <DriverManager />
           )}
         </div>
       </div>

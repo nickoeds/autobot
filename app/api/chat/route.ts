@@ -1,7 +1,7 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, type Message } from "ai";
 import { sqlQueryTool, trackDeliveryTool, trackVehicleTool } from "@/lib/tools";
-import { getSystemSetting } from "@/lib/db";
+import { getSystemSetting, getAllDrivers } from "@/lib/db";
 
 export const maxDuration = 180;
 
@@ -110,12 +110,35 @@ This business is based in the UK. Always display all monetary values in British 
 Feel free to help users explore the auto parts database and find the information they need!`;
 
   try {
-    const systemSetting = await getSystemSetting('system_prompt');
+    // Fetch system prompt and drivers
+    const [systemSetting, drivers] = await Promise.all([
+      getSystemSetting('system_prompt'),
+      getAllDrivers()
+    ]);
+    
     if (systemSetting?.value) {
       systemPrompt = systemSetting.value;
     }
+    
+    // Inject driver information into the system prompt
+    if (drivers && drivers.length > 0) {
+      const driverInfo = drivers.map(driver => 
+        `- **${driver.name}**`
+      ).join('\n');
+      
+      const driverSection = `
+
+**Available Drivers:**
+${driverInfo}
+
+**Driver Tracking Notes:**
+- Use driver names when customers ask about specific drivers
+- When customers ask "Where is [driver name]?" or "Track [driver name]", use the corresponding drivers name with the vehicle tracking tool`;
+
+      systemPrompt += driverSection;
+    }
   } catch (error) {
-    console.error('Error fetching system prompt:', error);
+    console.error('Error fetching system prompt or drivers:', error);
     // Fall back to default prompt
   }
   
