@@ -154,7 +154,7 @@ export const TrackVehicleFallback: ToolCallContentPartComponent = ({
                   {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY && (
                     <div className="w-full h-48 rounded border border-gray-200 overflow-hidden">
                       <iframe
-                        src={`https://www.google.com/maps/embed/v1/view?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&center=${vehicle.lat},${vehicle.lng}&zoom=14`}
+                        src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${vehicle.lat},${vehicle.lng}&zoom=14`}
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
