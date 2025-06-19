@@ -25,6 +25,7 @@ import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { SqlQueryFallback } from "@/components/assistant-ui/sql-query-fallback";
 import { TrackDeliveryFallback } from "./track-delivery-fallback";
 import { TrackVehicleFallback } from "./track-vehicle-fallback";
+import { DriverDeliveriesFallback } from "./driver-deliveries-fallback";
 
 export const Thread: FC = () => {
   return (
@@ -214,7 +215,8 @@ const AssistantMessage: FC = () => {
               by_name: {
                 sqlQuery: SqlQueryFallback,
                 trackDelivery: TrackDeliveryFallback,
-                trackVehicleTool: TrackVehicleFallback
+                trackVehicleTool: TrackVehicleFallback,
+                getDriverDeliveries: DriverDeliveriesFallback
               }
             }
           }} 

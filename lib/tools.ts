@@ -42,6 +42,30 @@ interface VehicleApiResponse {
   results: VehicleApiEntry[];
 }
 
+// Driver deliveries interfaces
+interface DetrackItem {
+  sku: string;
+  description: string;
+  quantity: number;
+}
+
+interface DetrackDelivery {
+  do_number: string;
+  status: string;
+  tracking_status: string;
+  company_name: string;
+  address: string;
+  instructions?: string;
+  note?: string;
+  items_count: number;
+  items: DetrackItem[];
+  verification_code?: number;
+}
+
+interface DetrackApiResponse {
+  data: DetrackDelivery[];
+}
+
 // SQL Database Query tool
 export const sqlQueryTool = tool({
   description: "Execute SQL queries on the ap_autopart database, specifically on the iLines table. Use this to retrieve data about auto parts. Results returned are limited to 20 rows maximum.",
@@ -262,6 +286,66 @@ export const trackVehicleTool = tool({
     } catch (error) {
       return {
         success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  },
+});
+
+export const getDriverDeliveriesTool = tool({
+  description:
+    "Get all deliveries assigned to a specific driver using the Detrack API. Returns a list of dispatched deliveries for the driver.",
+  parameters: z.object({
+    driver_name: z.string().describe("The name of the driver to get deliveries for."),
+  }),
+  execute: async ({ driver_name }) => {
+    try {
+      const apiKey = process.env.DETRACK_API_KEY;
+      if (!apiKey) {
+        throw new Error("Detrack API key is not configured.");
+      }
+
+      const url = `https://app.detrack.com/api/v2/dn/jobs?status=dispatched&assign_to=${encodeURIComponent(driver_name)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-KEY": apiKey,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: response.statusText }));
+        throw new Error(`Detrack API error: ${response.status} ${errorData.message || response.statusText}`);
+      }
+
+      const result: DetrackApiResponse = await response.json();
+      if (!result.data) {
+        throw new Error("Invalid response format from Detrack API: missing 'data' field.");
+      }
+
+      const deliveries = result.data.map((delivery: DetrackDelivery) => ({
+        do_number: delivery.do_number,
+        status: delivery.tracking_status || delivery.status,
+        company_name: delivery.company_name,
+        address: delivery.address,
+        instructions: delivery.instructions || delivery.note,
+        items_count: delivery.items_count,
+        items: delivery.items.slice(0, 3).map((item: DetrackItem) => `${item.quantity}x ${item.description} (${item.sku})`).join(', '),
+        verification_code: delivery.verification_code,
+      }));
+
+      return {
+        success: true,
+        driver_name,
+        delivery_count: deliveries.length,
+        deliveries,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        driver_name,
         error: error instanceof Error ? error.message : "Unknown error occurred",
       };
     }

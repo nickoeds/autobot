@@ -1,6 +1,6 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText, type Message } from "ai";
-import { sqlQueryTool, trackDeliveryTool, trackVehicleTool } from "@/lib/tools";
+import { sqlQueryTool, trackDeliveryTool, trackVehicleTool, getDriverDeliveriesTool } from "@/lib/tools";
 import { getSystemSetting, getAllDrivers } from "@/lib/db";
 
 export const maxDuration = 180;
@@ -83,12 +83,17 @@ This business is based in the UK. Always display all monetary values in British 
    - You can get the status, tracking number, ETA, and proof of delivery.
    - Use the detrackId field to track a delivery.
 
+3. **Driver Deliveries** - Get all deliveries assigned to a specific driver.
+   - You can see all dispatched deliveries for a driver including DO numbers, addresses, items, and status.
+   - Use this when customers ask about a driver's workload or delivery assignments.
+
 **Common Query Examples:**
 - "Who is the top sales person today?" - Query operators table for sales_today, or join operators with iLines on opcode=InvInits, group by agent name, sum Unit*Qty for calculated sales (show totals as £X.XX)
 - "Show me Greg Edmunds' performance today" - Query agents table where name='Greg Edmunds' to get sales_today, costs_today, margin_today (display all as £X.XX)
 - "How much has customer account number 1230 purchased this week?" - Join iLines and iHeads on Document field, filter by Acct (customer account) and DateTime range, sum Unit*Qty for total purchases (show total as £X.XX)
 - "Can you track delivery DO 12345?" - Use the delivery tracking tool with the DO number.
 - "Where is customer 1230's delivery?" - Fetch customer document number from iHeads table join with detrack table to get the DO number. Use the trackDelivery tool to get the delivery status.
+- "What deliveries does Anthony have today?" - Use the driver deliveries tool with the driver name to get all assigned deliveries.
 
 **Query Tips:**
 - Use DateTime field for time-based filtering (today, this week, this month, etc.)
@@ -133,7 +138,8 @@ ${driverInfo}
 
 **Driver Tracking Notes:**
 - Use driver names when customers ask about specific drivers
-- When customers ask "Where is [driver name]?" or "Track [driver name]", use the corresponding drivers name with the vehicle tracking tool`;
+- When customers ask "Where is [driver name]?" or "Track [driver name]", use the corresponding drivers name with the vehicle tracking tool
+- When customers ask "What deliveries does [driver name] have?" or "Show [driver name]'s deliveries", use the driver deliveries tool`;
 
       systemPrompt += driverSection;
     }
@@ -141,6 +147,14 @@ ${driverInfo}
     console.error('Error fetching system prompt or drivers:', error);
     // Fall back to default prompt
   }
+  
+  // Add current time to system prompt
+  const currentTime = new Date().toLocaleString('en-GB', {
+    timeZone: 'Europe/London',
+    dateStyle: 'full',
+    timeStyle: 'medium'
+  });
+  systemPrompt += `\n\n**Current Time:** ${currentTime}`;
   
   const anthropic = createAnthropic({
     fetch: async (url, options) => {
@@ -220,7 +234,8 @@ ${driverInfo}
     tools: {
       sqlQuery: sqlQueryTool,
       trackDelivery: trackDeliveryTool,
-      trackVehicleTool: trackVehicleTool
+      trackVehicleTool: trackVehicleTool,
+      getDriverDeliveries: getDriverDeliveriesTool
     },
     system: systemPrompt,
   });
